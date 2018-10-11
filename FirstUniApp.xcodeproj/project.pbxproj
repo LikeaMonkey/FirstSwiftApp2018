@@ -54,14 +54,22 @@
 		8CD3595B216FB57F0081AF32 /* FirstUniApp */ = {
 			isa = PBXGroup;
 			children = (
-				8CD3595C216FB57F0081AF32 /* AppDelegate.swift */,
+				8CD3596F216FC2DA0081AF32 /* Supporting files */,
 				8CD3595E216FB57F0081AF32 /* ViewController.swift */,
 				8CD35960216FB57F0081AF32 /* Main.storyboard */,
 				8CD35963216FB5800081AF32 /* Assets.xcassets */,
-				8CD35965216FB5800081AF32 /* LaunchScreen.storyboard */,
 				8CD35968216FB5800081AF32 /* Info.plist */,
 			);
 			path = FirstUniApp;
+			sourceTree = "<group>";
+		};
+		8CD3596F216FC2DA0081AF32 /* Supporting files */ = {
+			isa = PBXGroup;
+			children = (
+				8CD35965216FB5800081AF32 /* LaunchScreen.storyboard */,
+				8CD3595C216FB57F0081AF32 /* AppDelegate.swift */,
+			);
+			path = "Supporting files";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
