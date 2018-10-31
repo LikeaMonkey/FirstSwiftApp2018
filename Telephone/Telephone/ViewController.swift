@@ -23,50 +23,81 @@ class ViewController: UIViewController {
     @IBOutlet weak var eraseButton: UIButton!
     
     @IBAction func buttonTouched(_ sender: UIButton) {
-        infoTextLabel.text?.append(sender.titleLabel?.text ?? "")
-        hideEraseButton(false)
+        if let title = sender.currentTitle {
+            PhoneBook.shared.number = (PhoneBook.shared.number ?? "") + title
+        }
     }
     
     @IBAction func eraseTouched(_ sender: UIButton) {
-        if let subStringWithoutLast = infoTextLabel.text?.dropLast() {
-            infoTextLabel.text = String(subStringWithoutLast);
-        }
-        if let empty = infoTextLabel.text?.isEmpty {
-            hideEraseButton(empty)
-        }
+        PhoneBook.shared.number = "\(PhoneBook.shared.number?.dropLast() ?? "")"
     }
     
     @IBAction func longPress(_ sender: UILongPressGestureRecognizer) {
-        if (sender.state == UIGestureRecognizer.State.ended) {
-            changeZeroButtonTitleWith(Constants.zeroSymbol)
-            infoTextLabel.text?.append(Constants.plusSymbol)
-            hideEraseButton(false)
-        } else if (sender.state == UIGestureRecognizer.State.began) {
+        if (sender.state == UIGestureRecognizer.State.began) {
             changeZeroButtonTitleWith(Constants.plusSymbol)
+        } else if (sender.state == UIGestureRecognizer.State.ended) {
+            changeZeroButtonTitleWith(Constants.zeroSymbol)
+            PhoneBook.shared.number?.append(Constants.plusSymbol)
         }
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        hideEraseButton(true)
-        callButton.layer.cornerRadius = roundedCornerRadius(callButton.frame.size.width)
+        // First way - with delegate
+        //PhoneBook.shared.delegate = self
+        
+        NotificationCenter.default.addObserver(forName: .modelUpdated,
+                                               object: nil,
+                                               queue: nil) { [weak self] _ in
+                                                        self?.updateView()
+        }
+        
+        PhoneBook.shared.number = nil
+        
+        callButton.layer.cornerRadius = callButton.frame.size.width / 2
         for button in numButtons {
-            button.layer.cornerRadius = roundedCornerRadius(button.frame.size.width)
+            button.layer.cornerRadius = button.frame.size.width / 2
         }
     }
     
-    // MARK: Helpers
-    
-    func hideEraseButton(_ state: Bool) {
-        eraseButton.isHidden = state
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
+    func updateView() {
+        infoTextLabel?.text = formatPhoneNumber(text: PhoneBook.shared.number, with: " ")
+        eraseButton?.isHidden = PhoneBook.shared.number?.isEmpty ?? true
+    }
+    
+    // MARK: Helpers
     func changeZeroButtonTitleWith(_ title: String) {
         numButtons[Constants.zeroButtonIndex].titleLabel?.text = title
     }
     
-    func roundedCornerRadius(_ frameWidth: CGFloat) -> CGFloat {
-        return frameWidth / 2;
+    func formatPhoneNumber(text: String?, with separator: String) -> String? {
+        guard let textUnwrapped = text else {
+            return text
+        }
+        
+        var formattedText = ""
+        for (index, character) in textUnwrapped.enumerated() {
+            if index != 0 && index % 3 == 0 {
+                formattedText.append(separator)
+            }
+            
+            formattedText.append(String(character))
+        }
+        
+        return formattedText
     }
 }
+
+// First way - With Delegate
+
+//extension ViewController: PhoneBookDelegate {
+//    func numberDidUpdate() {
+//        infoTextLabel.text = PhoneBook.shared.number
+//        eraseButton.isHidden = PhoneBook.shared.number?.isEmpty ?? true
+//    }
+//}
